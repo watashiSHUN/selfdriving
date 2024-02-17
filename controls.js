@@ -27,7 +27,8 @@ class Controls{
                     this.reverse=true;
                     break;
         }
-        console.table(this);
+        // debug
+        //console.table(this);
     }
     document.onkeyup=(e)=>{
         switch(e.key){
