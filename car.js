@@ -86,9 +86,11 @@ class Car{
         ctx.rotate(-this.angle);
 
         ctx.beginPath();
-        // top_left.x, top_left.y, width, height
+        // because we have `translate`, 0,0 coordinate is the center of the car
+        // thus, top left x = -width/2, top left y = -height/2
         // canvas x from left to right, y from top to bottom
-        ctx.rect(-this.width/2,-this.height/2,this.width,this.height);
+        ctx.rect(-this.width/2,-this.height/2, /*rect width*/this.width, /*rect height*/this.height);
+        
         ctx.fill();
         ctx.restore();
     }

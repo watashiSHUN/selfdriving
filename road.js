@@ -6,6 +6,19 @@ class Road{
         
         this.left = x - width/2;
         this.right = x + width/2;
+
+        // TODO(shunxian): remove these, make the road infinite
+        this.top = -1000000;
+        this.bottom = this.top*-1;
+    }
+
+    // return the x coordinate of the lane center (where we can place cars)
+    // lane is 0-indexed
+    getLaneCenter(lane){
+        if (lane < 0 || lane >= this.laneCount){
+            throw "Invalid lane index";
+        }
+        return linearInterpolation(this.left, this.right, (lane+0.5)/this.laneCount);
     }
 
     draw(ctx){
@@ -19,14 +32,14 @@ class Road{
         // draw left
         ctx.beginPath();
         // Y should be infinte (the same as the canvas)
-        ctx.moveTo(this.left, 0);
-        ctx.lineTo(this.left, window.innerHeight);
+        ctx.moveTo(this.left, this.top);
+        ctx.lineTo(this.left, this.bottom);
         ctx.stroke();
 
         // draw right
         ctx.beginPath();
-        ctx.moveTo(this.right, 0);
-        ctx.lineTo(this.right, window.innerHeight);
+        ctx.moveTo(this.right, this.top);
+        ctx.lineTo(this.right, this.bottom);
         ctx.stroke();
 
         // draw lanes
@@ -35,8 +48,8 @@ class Road{
             var x = linearInterpolation(this.left, this.right, i/this.laneCount)
             ctx.setLineDash([20, 20]);
             ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, window.innerHeight);
+            ctx.moveTo(x, this.top);
+            ctx.lineTo(x, this.bottom);
             ctx.stroke();
         }
     }
