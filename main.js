@@ -1,5 +1,5 @@
 const canvas=document.getElementById("canvas");
-canvas.height=window.innerHeight;
+
 canvas.width=200;
 
 const ctx=canvas.getContext("2d");
@@ -10,8 +10,9 @@ animate();
 
 function animate(){
     car.update();
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    // set canvas height resets the canvas?
+    // NOTE: constantly reset the canvas
+    canvas.height=window.innerHeight;
     car.draw(ctx);
-    // what does this function do?
     requestAnimationFrame(animate)
 }

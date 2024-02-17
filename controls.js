@@ -1,11 +1,13 @@
 class Controls{
     constructor(){
+        // Attributes of the control
         this.forward=false;
         this.left=false;
         this.right=false;
         this.reverse=false;
+        this.stop=true;
         
-        
+        // set callback for keyboard events
         this.#addKeyboardListeners();
     }
     
