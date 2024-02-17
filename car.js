@@ -21,12 +21,12 @@ class Car{
     }
 
     update(){
-        this.updateSpeed();
-        this.updateDirection();
-        this.updateCoordinate();
+        this.#updateSpeed();
+        this.#updateDirection();
+        this.#updateCoordinate();
     }
 
-    updateSpeed(){
+    #updateSpeed(){
         // after calculation, speed is a vector on Y axis
         if (this.control.forward){
             this.speed+=this.acceleration;
@@ -55,7 +55,7 @@ class Car{
         }
     }
 
-    updateCoordinate(){
+    #updateCoordinate(){
         // speed is the x+y vector, we need to resolve its x,y
 
         // when turning left, angle increase, sin(-angle) is positive, it goes left
@@ -67,7 +67,7 @@ class Car{
         this.y-=this.speed*Math.cos(this.angle);
     }
 
-    updateDirection(){
+    #updateDirection(){
         // Does not allow rotating while not moving
         if(this.speed != 0){
             var flip = this.speed > 0 ? 1 : -1;
