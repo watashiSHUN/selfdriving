@@ -21,6 +21,19 @@ class Road{
         return linearInterpolation(this.left, this.right, (lane+0.5)/this.laneCount);
     }
 
+    // return array
+    getBorders(){
+        var leftBorder = {
+            // top left
+            start: {x: this.left, y: this.top}, 
+            end: {x: this.left, y: this.bottom}};
+        var rightBorder = {
+            start: {x: this.right, y: this.top}, 
+            end: {x: this.right, y: this.bottom}};
+        
+        return [leftBorder, rightBorder];
+    }
+
     draw(ctx){
         ctx.lineWidth = 5;
         ctx.strokeStyle = "white";
@@ -29,18 +42,14 @@ class Road{
         // https://www.educative.io/answers/how-to-draw-lines-on-canvas-using-javascript
         // `lineTo`
         
-        // draw left
-        ctx.beginPath();
-        // Y should be infinte (the same as the canvas)
-        ctx.moveTo(this.left, this.top);
-        ctx.lineTo(this.left, this.bottom);
-        ctx.stroke();
-
-        // draw right
-        ctx.beginPath();
-        ctx.moveTo(this.right, this.top);
-        ctx.lineTo(this.right, this.bottom);
-        ctx.stroke();
+        // draw borders
+        var borders = this.getBorders();
+        borders.forEach(border => {
+            ctx.beginPath();
+            ctx.moveTo(border.start.x, border.start.y);
+            ctx.lineTo(border.end.x, border.end.y);
+            ctx.stroke();
+        });
 
         // draw lanes
         // 3 lanes => we only need to draw the splitters
@@ -51,6 +60,8 @@ class Road{
             ctx.moveTo(x, this.top);
             ctx.lineTo(x, this.bottom);
             ctx.stroke();
+            // Clear the line dash
+            ctx.setLineDash([]);
         }
     }
 }

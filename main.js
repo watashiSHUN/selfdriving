@@ -6,13 +6,11 @@ const ctx=canvas.getContext("2d");
 // Leave some margin for the road
 const road = new Road(/*x coordinate*/canvasWidth/2,/*width*/canvasWidth*0.9);
 const car = new Car(/*car center's x coordinate*/road.getLaneCenter(1),/*car center's y coordinate*/100,30,50);
-const sensor= new Sensor(car);
 
 animate();
 
 function animate(){
-    car.update();
-    sensor.update();
+    car.update(road.getBorders());
     // set canvas height resets the canvas?
     // NOTE: constantly reset the canvas
     canvas.height=window.innerHeight;
@@ -26,7 +24,6 @@ function animate(){
     // Draw the road first, so that the car can be drawn on top of it (crossing the lanes)
     road.draw(ctx);
     car.draw(ctx);
-    sensor.draw(ctx);
 
     ctx.restore();
     requestAnimationFrame(animate)

@@ -17,13 +17,16 @@ class Car{
         // we will never apply too much friction (it will reach 0)
         this.acceleration=0.2;
 
-        this.control=new Controls();
+        // Owns the sensor and the responsibility to update it and draw it
+        this.sensor = new Sensor(this);
+        this.control = new Controls();
     }
 
-    update(){
+    update(roadBorders){
         this.#updateSpeed();
         this.#updateDirection();
         this.#updateCoordinate();
+        this.sensor.update(roadBorders);
     }
 
     #updateSpeed(){
@@ -93,5 +96,7 @@ class Car{
         
         ctx.fill();
         ctx.restore();
+
+        this.sensor.draw(ctx);
     }
 }
