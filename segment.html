@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<head>
+    <title>Segment Intersection</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script src="utils.js"></script>
+    <script>
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const A = {x:200, y:150};
+        const B = {x:150, y:250};
+        const C = {x:50, y:100};
+        const D = {x:250, y:200};
+        // Capture cursor position in variable mouse
+        const mouse = {x:0, y:0};
+        document.onmousemove = function(event){
+            mouse.x = event.clientX;
+            mouse.y = event.clientY;
+        }
+
+        // Draw the segments
+        const ctx = canvas.getContext('2d');
+        let angle = 0;
+        const radius = 70;
+        // run animate and register it
+        animate();
+
+        function drawDot(point, label){
+            ctx.beginPath();
+            ctx.fillStyle = 'white';
+            ctx.arc(point.x, point.y, 10, /*start_radian=*/0, /*end_radian=*/2 * Math.PI);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = 'black';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font='bold 14px Arial';
+            ctx.fillText(label, point.x, point.y);
+        }
+
+        function animate(){
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // recompute AB
+            // make AB rotate arond the mouse
+            A.x = mouse.x + Math.cos(angle) * radius;
+            A.y = mouse.y - Math.sin(angle) * radius;
+            B.x = mouse.x - Math.cos(angle) * radius;
+            B.y = mouse.y + Math.sin(angle) * radius;
+            angle += 0.03;
+
+            // Draw AB and CD
+            ctx.beginPath();
+            ctx.moveTo(A.x, A.y);
+            ctx.lineTo(B.x, B.y);
+            ctx.moveTo(C.x, C.y);
+            ctx.lineTo(D.x, D.y);
+            ctx.stroke();
+
+            // Draw the dots
+            drawDot(A, 'A');
+            drawDot(B, 'B');
+            drawDot(C, 'C');
+            drawDot(D, 'D');
+
+            // Compute dot M
+            const equationTop = (A.y-C.y)*(D.x-C.x)-(A.x-C.x)*(D.y-C.y);
+            const equationBottom = (D.y-C.y)*(B.x-A.x)-(D.x-C.x)*(B.y-A.y);
+            // Bottom equation = 0 means the lines are parallel
+            if (equationBottom != 0) {
+                const t = equationTop / equationBottom;
+                const u = (A.x+(B.x-A.x)*t-C.x) / (D.x-C.x);
+                // t needs to stay between 0 and 1
+                if (t >= 0 && t <= 1 && u >= 0 && u <= 1){
+                    const M = {
+                        x: linearInterpolation(A.x, B.x, t),
+                        y: linearInterpolation(A.y, B.y, t)
+                    };
+                    drawDot(M, 'M');
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+    </script>
+</body>
+</html>
