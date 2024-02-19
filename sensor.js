@@ -12,7 +12,8 @@ class Sensor{
 
         // [{start:{x:, y:}, 
         //   end:{x:, y:}}...]
-        this.rays=[];
+        this.rays = [];
+        this.intersections = {};
     }
 
     update(roadBorders){
@@ -23,6 +24,20 @@ class Sensor{
 
     #detectIntersection(roadBorders){
         // calculate the intersection of the rays with the road
+        // Remove existing intersections
+        this.intersections = [];
+
+        this.rays.forEach((ray, index) => {
+            for (let i = 0; i < roadBorders.length; i++) {
+                let intersection = getIntersection(ray, roadBorders[i]);
+                if(intersection.intersect){
+                    // based on the offset, we can determine which intersection to take
+                    if(!(index in this.intersections) || this.intersections[index].offset < intersection.offset){
+                        this.intersections[index] = intersection;
+                    } 
+                }
+            }
+        });
     }
 
     #castRays(){
@@ -58,6 +73,14 @@ class Sensor{
             ctx.lineTo(ray.end.x,ray.end.y);
             ctx.stroke();
         });
+
+        ctx.strokeStyle = "red";
+        for(const [key,value] of Object.entries(this.intersections)){
+            ctx.beginPath();
+            ctx.moveTo(value.segmentXB.start.x, value.segmentXB.start.y);
+            ctx.lineTo(value.segmentXB.end.x, value.segmentXB.end.y);
+            ctx.stroke();
+        }
 
         ctx.restore();
     }
