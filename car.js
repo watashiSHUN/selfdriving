@@ -7,6 +7,7 @@ class Car{
         this.y=y;
         this.width=width;
         this.height=height;
+        this.polyGone = this.#createPolygon();
 
         this.speed=0;
         this.maxSpeed=3;
@@ -22,10 +23,36 @@ class Car{
         this.control = new Controls();
     }
 
+    #createPolygon(){
+        // Get four corners of the car
+        const points = [];
+        // top right before angle x+width/2, y-height/2, and its angle
+        let angleBefore = Math.atan2(this.height, this.width);
+        let newAngle = this.angle + angleBefore;
+        let newAngle2 = angleBefore - this.angle;
+        // When computing hypothenus of a triangle, the order of the sides does not matter
+        let diagonalLength = Math.hypot(this.width/2, this.height/2);
+        let topRight = {x: this.x + Math.cos(newAngle)*diagonalLength, y: this.y - Math.sin(newAngle)*diagonalLength};
+        points.push(topRight);
+
+        let topLeft = {x: this.x - Math.cos(newAngle2)*diagonalLength, y: this.y - Math.sin(newAngle2)*diagonalLength};
+        points.push(topLeft);
+
+        let bottomLeft = {x: this.x - Math.cos(newAngle)*diagonalLength, y: this.y + Math.sin(newAngle)*diagonalLength};
+        points.push(bottomLeft);
+
+        let bottomRight = {x: this.x + Math.cos(newAngle2)*diagonalLength, y: this.y + Math.sin(newAngle2)*diagonalLength};
+        points.push(bottomRight);
+
+        // clockwise order
+        return points;
+    }
+
     update(roadBorders){
         this.#updateSpeed();
         this.#updateDirection();
         this.#updateCoordinate();
+        this.polyGone = this.#createPolygon();
         this.sensor.update(roadBorders);
     }
 
@@ -83,19 +110,18 @@ class Car{
     }
     
     draw(ctx){
-        ctx.save()
-        ctx.translate(this.x,this.y);
-        // rotate negative angle
-        ctx.rotate(-this.angle);
-
+        // draw polygon
         ctx.beginPath();
-        // because we have `translate`, 0,0 coordinate is the center of the car
-        // thus, top left x = -width/2, top left y = -height/2
-        // canvas x from left to right, y from top to bottom
-        ctx.rect(-this.width/2,-this.height/2, /*rect width*/this.width, /*rect height*/this.height);
-        
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "red";
+        ctx.moveTo(this.polyGone[0].x,this.polyGone[0].y);
+        for (let i = 0; i< this.polyGone.length; i++){
+            let end = this.polyGone[(i+1)%this.polyGone.length];
+            ctx.lineTo(end.x,end.y);
+            ctx.stroke();
+        }
+        ctx.fillStyle = "black";
         ctx.fill();
-        ctx.restore();
 
         this.sensor.draw(ctx);
     }

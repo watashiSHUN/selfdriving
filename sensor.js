@@ -8,7 +8,7 @@ class Sensor{
         // ray spread is the total angle covered by all the rays
         this.raySpread = Math.PI/2; // 45 degrees
 
-        // store the absolute position, start->end
+        // Store the absolute position, start->end
 
         // [{start:{x:, y:}, 
         //   end:{x:, y:}}...]
@@ -23,7 +23,7 @@ class Sensor{
     }
 
     #detectIntersection(roadBorders){
-        // calculate the intersection of the rays with the road
+        // Calculate the intersection of the rays with the road
         // Remove existing intersections
         this.intersections = [];
 
@@ -32,6 +32,7 @@ class Sensor{
                 let intersection = getIntersection(ray, roadBorders[i]);
                 if(intersection.intersect){
                     // based on the offset, we can determine which intersection to take
+                    // Take the minimum offset => smallest == closest
                     if(!(index in this.intersections) || this.intersections[index].offset < intersection.offset){
                         this.intersections[index] = intersection;
                     } 
