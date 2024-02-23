@@ -1,5 +1,5 @@
 class Car{
-    constructor(x,y,width,height){
+    constructor(x,y,width,height,speed,color){
         // properties of the car
 
         // coordinates, center of the car
@@ -7,20 +7,21 @@ class Car{
         this.y=y;
         this.width=width;
         this.height=height;
-        this.polyGone = this.#createPolygon();
+        this.angle=0;
 
-        this.speed=0;
+        this.color=color;
+        this.speed=speed;
         this.maxSpeed=3;
         this.friction=0.03;
         // unit is the degree
-        this.angle=0;
         // friction being a factor of the acceleration
         // we will never apply too much friction (it will reach 0)
         this.acceleration=0.2;
 
-        // Owns the sensor and the responsibility to update it and draw it
-        this.sensor = new Sensor(this);
-        this.control = new Controls();
+        // polygon is needs above infos
+        // NOTE: if you call a function in the constructor, which depends on the properties, it should be the last statement.
+        this.polyGone = this.#createPolygon();
+
     }
 
     #createPolygon(){
@@ -43,17 +44,67 @@ class Car{
 
         let bottomRight = {x: this.x + Math.cos(newAngle2)*diagonalLength, y: this.y + Math.sin(newAngle2)*diagonalLength};
         points.push(bottomRight);
-
         // clockwise order
         return points;
     }
 
-    update(roadBorders){
-        this.#updateSpeed();
-        this.#updateDirection();
+    update(){
         this.#updateCoordinate();
         this.polyGone = this.#createPolygon();
-        this.sensor.update(roadBorders);
+    }
+
+    #updateCoordinate(){
+        // speed is the x+y vector, we need to resolve its x,y
+
+        // when turning left, angle increase, sin(-angle) is positive, it goes left
+        // when turning left BACKWARDS, negative speed * sin(angle) is negative, it goes right
+                
+        // Refer to this image for the math
+        // https://i.stack.imgur.com/iBwl4.png
+        this.x-=this.speed*Math.sin(this.angle);
+        this.y-=this.speed*Math.cos(this.angle);
+    }
+
+    draw(ctx){
+        // draw polygon
+        ctx.beginPath();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "red";
+        ctx.moveTo(this.polyGone[0].x,this.polyGone[0].y);
+        for (let i = 0; i< this.polyGone.length; i++){
+            let end = this.polyGone[(i+1)%this.polyGone.length];
+            ctx.lineTo(end.x,end.y);
+            ctx.stroke();
+        }
+        ctx.fillStyle = this.color;
+        ctx.fill();
+    }
+}
+
+
+class PlayerCar extends Car{
+    constructor(x,y,width,height,speed,color){
+        super(x,y,width,height,speed,color);
+
+        // Properties unique to the player car
+        this.damaged = false;
+        // Owns the sensor and the responsibility to update it and draw it
+        this.sensor = new Sensor(this);
+        this.control = new Controls();
+    }
+
+    #assessDamage(roadBorders){
+        for(let i = 0; i < this.polyGone.length; i++){
+            let carEdge = {start: this.polyGone[i], end: this.polyGone[(i+1)%this.polyGone.length]};
+            for (let j = 0; j < roadBorders.length; j++){
+                let roadEdge = roadBorders[j];
+                let intersection = getIntersection(carEdge, roadEdge);
+                if(intersection.intersect){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     #updateSpeed(){
@@ -85,18 +136,6 @@ class Car{
         }
     }
 
-    #updateCoordinate(){
-        // speed is the x+y vector, we need to resolve its x,y
-
-        // when turning left, angle increase, sin(-angle) is positive, it goes left
-        // when turning left BACKWARDS, negative speed * sin(angle) is negative, it goes right
-                
-        // Refer to this image for the math
-        // https://i.stack.imgur.com/iBwl4.png
-        this.x-=this.speed*Math.sin(this.angle);
-        this.y-=this.speed*Math.cos(this.angle);
-    }
-
     #updateDirection(){
         // Does not allow rotating while not moving
         if(this.speed != 0){
@@ -109,20 +148,23 @@ class Car{
         }
     }
     
-    draw(ctx){
-        // draw polygon
-        ctx.beginPath();
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = "red";
-        ctx.moveTo(this.polyGone[0].x,this.polyGone[0].y);
-        for (let i = 0; i< this.polyGone.length; i++){
-            let end = this.polyGone[(i+1)%this.polyGone.length];
-            ctx.lineTo(end.x,end.y);
-            ctx.stroke();
+    update(obstacles){
+        this.damaged = this.#assessDamage(obstacles);
+        if (!this.damaged) {
+            this.#updateSpeed();
+            this.#updateDirection();
+            super.update();
+            this.sensor.update(obstacles);
         }
-        ctx.fillStyle = "black";
-        ctx.fill();
+    }
 
+    draw(ctx){
+        if (this.damaged){
+            this.color = "grey"
+        }
+        // NOTE: draw will override fillStyle with this.color
+        super.draw(ctx);
         this.sensor.draw(ctx);
     }
+
 }
