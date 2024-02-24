@@ -16,8 +16,13 @@ function animate(){
     traffic.forEach(car => {
         car.update();
     });
+    
+    let obstacles = road.getBorders();
+    traffic.forEach(car => {
+        obstacles = obstacles.concat(connectPoints(car.polyGone));
+    });
 
-    playerCar.update(road.getBorders());
+    playerCar.update(obstacles);
     // set canvas height resets the canvas?
     // NOTE: constantly reset the canvas
     canvas.height=window.innerHeight;
@@ -30,10 +35,12 @@ function animate(){
 
     // Draw the road first, so that the car can be drawn on top of it (crossing the lanes)
     road.draw(ctx);
-    playerCar.draw(ctx);
     traffic.forEach(car => {
         car.draw(ctx);
     });
+    // Draw obstacles
+    //drawLines(obstacles, ctx, "blue");
+    playerCar.draw(ctx);
 
     ctx.restore();
     requestAnimationFrame(animate)

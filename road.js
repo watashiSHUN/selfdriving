@@ -21,7 +21,8 @@ class Road{
         return linearInterpolation(this.left, this.right, (lane+0.5)/this.laneCount);
     }
 
-    // return array
+    // return 2 lines
+    // [{start:{x, y}, end:{x, y}}, {start:{x, y}, end:{x, y]
     getBorders(){
         var leftBorder = {
             // top left

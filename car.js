@@ -20,11 +20,13 @@ class Car{
 
         // polygon is needs above infos
         // NOTE: if you call a function in the constructor, which depends on the properties, it should be the last statement.
-        this.polyGone = this.#createPolygon();
+        this.polyGone = this.createPolygon();
 
     }
 
-    #createPolygon(){
+    // Return 4 points
+    // [{x:, y:}...]
+    createPolygon(){
         // Get four corners of the car
         const points = [];
         // top right before angle x+width/2, y-height/2, and its angle
@@ -50,7 +52,7 @@ class Car{
 
     update(){
         this.#updateCoordinate();
-        this.polyGone = this.#createPolygon();
+        this.polyGone = this.createPolygon();
     }
 
     #updateCoordinate(){
@@ -87,24 +89,24 @@ class PlayerCar extends Car{
         super(x,y,width,height,speed,color);
 
         // Properties unique to the player car
-        this.damaged = false;
+        this.damaged = null;
         // Owns the sensor and the responsibility to update it and draw it
         this.sensor = new Sensor(this);
         this.control = new Controls();
     }
 
-    #assessDamage(roadBorders){
+    // Return the intersection
+    #assessDamage(obstacles){
         for(let i = 0; i < this.polyGone.length; i++){
             let carEdge = {start: this.polyGone[i], end: this.polyGone[(i+1)%this.polyGone.length]};
-            for (let j = 0; j < roadBorders.length; j++){
-                let roadEdge = roadBorders[j];
-                let intersection = getIntersection(carEdge, roadEdge);
+            for (let j = 0; j < obstacles.length; j++){
+                let intersection = getIntersection(carEdge, obstacles[j]);
                 if(intersection.intersect){
-                    return true;
+                    return intersection;
                 }
             }
         }
-        return false;
+        return null;
     }
 
     #updateSpeed(){
@@ -150,7 +152,8 @@ class PlayerCar extends Car{
     
     update(obstacles){
         this.damaged = this.#assessDamage(obstacles);
-        if (!this.damaged) {
+        // Keep updating the car and sensor if it is not damaged
+        if (this.damaged == null) {
             this.#updateSpeed();
             this.#updateDirection();
             super.update();
@@ -159,12 +162,15 @@ class PlayerCar extends Car{
     }
 
     draw(ctx){
-        if (this.damaged){
+        if (this.damaged != null){
             this.color = "grey"
         }
         // NOTE: draw will override fillStyle with this.color
         super.draw(ctx);
         this.sensor.draw(ctx);
+
+        // Debug, draw the intersection
+        drawIntersection(this.damaged, ctx);
     }
 
 }

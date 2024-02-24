@@ -16,24 +16,24 @@ class Sensor{
         this.intersections = {};
     }
 
-    update(roadBorders){
+    update(obstacles){
         this.#castRays();
         // Compute rays intersection with the road
-        this.#detectIntersection(roadBorders);       
+        this.#detectIntersection(obstacles);       
     }
 
-    #detectIntersection(roadBorders){
+    #detectIntersection(obstacles){
         // Calculate the intersection of the rays with the road
         // Remove existing intersections
-        this.intersections = [];
+        this.intersections = {};
 
         this.rays.forEach((ray, index) => {
-            for (let i = 0; i < roadBorders.length; i++) {
-                let intersection = getIntersection(ray, roadBorders[i]);
+            for (let i = 0; i < obstacles.length; i++) {
+                let intersection = getIntersection(ray, obstacles[i]);
                 if(intersection.intersect){
                     // based on the offset, we can determine which intersection to take
-                    // Take the minimum offset => smallest == closest
-                    if(!(index in this.intersections) || this.intersections[index].offset < intersection.offset){
+                    // Take the minimum offset => smallest == closest/nearest
+                    if(!(index in this.intersections) || this.intersections[index].offset > intersection.offset){
                         this.intersections[index] = intersection;
                     } 
                 }
@@ -77,9 +77,10 @@ class Sensor{
 
         ctx.strokeStyle = "red";
         for(const [key,value] of Object.entries(this.intersections)){
+            //drawIntersection(value, ctx);
             ctx.beginPath();
-            ctx.moveTo(value.segmentXB.start.x, value.segmentXB.start.y);
-            ctx.lineTo(value.segmentXB.end.x, value.segmentXB.end.y);
+            ctx.moveTo(value.intersection.x, value.intersection.y);
+            ctx.lineTo(value.segmentAB.end.x, value.segmentAB.end.y);
             ctx.stroke();
         }
 
