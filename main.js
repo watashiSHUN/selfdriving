@@ -1,8 +1,13 @@
-const canvas=document.getElementById("canvas");
+const carCanvas=document.getElementById("carCanvas");
 const canvasWidth=200;
-canvas.width=canvasWidth;
+carCanvas.width=canvasWidth;
+const carCtx=carCanvas.getContext("2d");
 
-const ctx=canvas.getContext("2d");
+const networkCanvas=document.getElementById("networkCanvas");
+const networkCanvasWidth=300;
+networkCanvas.width=networkCanvasWidth;
+const networkCtx=networkCanvas.getContext("2d");
+
 // Leave some margin for the road
 const road = new Road(/*x coordinate*/canvasWidth/2,/*width*/canvasWidth*0.9);
 const playerCar = new PlayerCar(/*car center's x coordinate*/road.getLaneCenter(1),/*car center's y coordinate*/100,30,50, speed=0, "black");
@@ -25,23 +30,24 @@ function animate(){
     playerCar.update(obstacles);
     // set canvas height resets the canvas?
     // NOTE: constantly reset the canvas
-    canvas.height=window.innerHeight;
+    carCanvas.height=window.innerHeight;
+    networkCanvas.height=window.innerHeight;
 
-    ctx.save();
+    carCtx.save();
     // Move canvas' Y axis
     // move canvas by -Y
     // when draw car at Y => basically draw at zero
-    ctx.translate(0,-playerCar.y+canvas.height*0.7);
+    carCtx.translate(0,-playerCar.y+carCanvas.height*0.7);
 
     // Draw the road first, so that the car can be drawn on top of it (crossing the lanes)
-    road.draw(ctx);
+    road.draw(carCtx);
     traffic.forEach(car => {
-        car.draw(ctx);
+        car.draw(carCtx);
     });
     // Draw obstacles
     //drawLines(obstacles, ctx, "blue");
-    playerCar.draw(ctx);
+    playerCar.draw(carCtx);
 
-    ctx.restore();
+    carCtx.restore();
     requestAnimationFrame(animate)
 }

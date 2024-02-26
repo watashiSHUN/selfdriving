@@ -82,9 +82,9 @@ function drawIntersection(intersectionResult, ctx){
     if (intersectionResult.intersect == false){
         return;
     }
-    //drawLines([intersectionResult.segmentAB], ctx, "black");
+    drawLines([intersectionResult.segmentAB], ctx, "black");
     drawLines([intersectionResult.segmentCD], ctx, "black")
-    //drawDot(intersectionResult.intersection, ctx, "purple");
+    drawDot(intersectionResult.intersection, ctx, "purple");
 }
 
 function drawDot(point, ctx,color){

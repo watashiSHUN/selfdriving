@@ -151,7 +151,10 @@ class PlayerCar extends Car{
     }
     
     update(obstacles){
-        this.damaged = this.#assessDamage(obstacles);
+        // the traffic car is still moving, next time you we calculate the, it might not collide
+        if(this.damaged == null){
+            this.damaged = this.#assessDamage(obstacles);
+        }
         // Keep updating the car and sensor if it is not damaged
         if (this.damaged == null) {
             this.#updateSpeed();
@@ -170,7 +173,7 @@ class PlayerCar extends Car{
         this.sensor.draw(ctx);
 
         // Debug, draw the intersection
-        drawIntersection(this.damaged, ctx);
+        // drawIntersection(this.damaged, ctx);
     }
 
 }
