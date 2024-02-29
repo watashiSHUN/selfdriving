@@ -5,7 +5,6 @@ class Controls{
         this.left=false;
         this.right=false;
         this.reverse=false;
-        this.stop=true;
         
         // set callback for keyboard events
         this.#addKeyboardListeners();
@@ -47,4 +46,21 @@ class Controls{
         }
     }
 }
+}
+
+class AIControls{
+    constructor(){
+        // Attributes of the control
+        this.forward=false;
+        this.left=false;
+        this.right=false;
+        this.reverse=false;
+    }
+    
+    apply(output){
+        this.forward = output[0]==1?true:false;
+        this.reverse = output[1]==1?true:false;
+        this.left = output[2]==1?true:false;
+        this.right = output[3]==1?true:false;
+    }
 }

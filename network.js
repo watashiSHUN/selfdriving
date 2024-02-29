@@ -37,15 +37,16 @@ class Level{
         // because we need to serialize this object
         Level.#randomize(this);
     }
+    // TODO: if I type level.inputCount => no error, but if I type level.input.length => typo, there's error?
     static #randomize(level){
-        for(let i = 0; i < level.inputCount; i++){
-            for(let j = 0; j < level.outputCount; j++){
+        for(let i = 0; i < level.inputs.length; i++){
+            for(let j = 0; j < level.outputs.length; j++){
                 // randomly assign a weight to each edge [-1, 1]
                 // TODO(shunxian): why -1 and 1
                 level.weights[i][j] = Math.random()*2-1;
             }
         }
-        for(let i = 0; i < level.outputCount; i++){
+        for(let i = 0; i < level.outputs.length; i++){
             level.biases[i] = Math.random()*2-1;
         }
     }
@@ -54,27 +55,27 @@ class Level{
     // static method, we need `level` as input
     static feedForward(input, level){
         // first pass the input to level.input
-        for(let i = 0; i < level.inputCount; i++){
+        // TODO: we probably don't need to store values in the level
+        for(let i = 0; i < level.inputs.length; i++){
             level.inputs[i] = input[i];
         }
 
         // function we use is sum(input*weight)
         // weight*input + bias = 0 => linear equation, a line with slope (weight) and y-intercept (bias)
         
-        for(let j = 0; j < level.outputCount; j++){
-            for (let i = 0; i < level.inputCount; i++){
+        for(let j = 0; j < level.outputs.length; j++){
             let sum = 0;
-                for(let i = 0; i < level.inputCount; i++){
-                    sum += level.inputs[i]*level.weights[i][j];
-                }
-                // binary output
-                if (sum > level.biases[j]){
-                    level.outputs[j] = 1; 
-                } else {
-                    level.outputs[j] = 0;
-                }
+            for (let i = 0; i < level.inputs.length; i++){
+                sum += level.inputs[i]*level.weights[i][j];
+            }
+            // binary output
+            if (sum > level.biases[j]){
+                level.outputs[j] = 1; 
+            } else {
+                level.outputs[j] = 0;
             }
         }
+        // console.log(level.outputs);
         return level.outputs;
     }
 }

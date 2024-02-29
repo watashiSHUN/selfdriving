@@ -1,3 +1,4 @@
+// Sequence: update() => draw()
 class Car{
     constructor(x,y,width,height,speed,color){
         // properties of the car
@@ -83,7 +84,7 @@ class Car{
     }
 }
 
-
+// Connect network to sensor and control of the car
 class PlayerCar extends Car{
     constructor(x,y,width,height,speed,color){
         super(x,y,width,height,speed,color);
@@ -175,5 +176,35 @@ class PlayerCar extends Car{
         // Debug, draw the intersection
         // drawIntersection(this.damaged, ctx);
     }
+}
 
+class AICar extends PlayerCar{
+    constructor(x,y,width,height,speed,color){
+        super(x,y,width,height,speed,color);
+        this.neuralNetwork = new NeuralNetwork([this.sensor.rayCount, 5, /*output:up,down,left,right*/4]);
+        // Override
+        this.control =  new AIControls();
+    }
+
+    update(obstacles){
+        // (1) Get neural network inputs
+        let input = [];
+        for(let i = 0; i < this.sensor.rayCount; i++){
+            // (1.1) check if ray[i] has intersection with any obstacle
+            if (i in this.sensor.intersections){
+                // offset represents the distance between the car and the object
+                // input to the neural network is 1-offset => closer means bigger number
+                input.push(1-this.sensor.intersections[i].offset);
+            } else {
+                input.push(0);
+            }
+        }
+
+        // (2) run neural network
+        let output = NeuralNetwork.feedForward(input, this.neuralNetwork);
+        console.log(input, output);
+        // (3) Update control
+        this.control.apply(output);
+        super.update(obstacles);
+    }
 }

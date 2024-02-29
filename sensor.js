@@ -13,6 +13,7 @@ class Sensor{
         // [{start:{x:, y:}, 
         //   end:{x:, y:}}...]
         this.rays = [];
+        // NOTE: intersections are reading feed into the neural network
         this.intersections = {};
     }
 
