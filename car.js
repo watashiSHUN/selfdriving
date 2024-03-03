@@ -165,14 +165,15 @@ class PlayerCar extends Car{
         }
     }
 
-    draw(ctx){
+    draw(ctx, drawSensor=false){
         if (this.damaged != null){
             this.color = "grey"
         }
         // NOTE: draw will override fillStyle with this.color
         super.draw(ctx);
-        this.sensor.draw(ctx);
-
+        if (drawSensor){
+            this.sensor.draw(ctx);
+        }
         // Debug, draw the intersection
         // drawIntersection(this.damaged, ctx);
     }
@@ -202,7 +203,6 @@ class AICar extends PlayerCar{
 
         // (2) run neural network
         let output = NeuralNetwork.feedForward(input, this.neuralNetwork);
-        console.log(input, output);
         // (3) Update control
         this.control.apply(output);
         super.update(obstacles);
