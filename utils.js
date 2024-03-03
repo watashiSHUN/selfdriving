@@ -32,17 +32,6 @@ function getIntersection(segmentAB, segmentCD){
         return {intersect: false};
     }
 
-    // verify
-    // let x = linearInterpolation(a.x, b.x, t);
-    // let y = linearInterpolation(a.y, b.y, t);
-    // let x2 = linearInterpolation(c.x, d.x, u);
-    // let y2 = linearInterpolation(c.y, d.y, u);
-    // TODO(shunxian): this does not work with the two edges
-    // if(x != x2 || y != y2){
-    //     console.log("Intersection verification failed");
-    //     return {intersect:false};
-    // }
-
     return {intersect: true, 
         segmentAB: {start:a, end:b},
         segmentCD: {start:c, end:d},
@@ -64,8 +53,12 @@ function connectPoints(polyGonPoints){
     return lines;
 }
 
-function drawLines(segments, ctx, color){
-    ctx.lineWidth = 2;
+function drawLines(segments, ctx, color, width=2){
+    // By default negative values are ignored (fallback to default 1)
+    if (Math.abs(width) < 1){
+        return; // skip drawing
+    }
+    ctx.lineWidth = Math.abs(width);
     ctx.strokeStyle = color;
     segments.forEach(segment => {
         ctx.beginPath();
@@ -73,6 +66,25 @@ function drawLines(segments, ctx, color){
         ctx.lineTo(segment.end.x, segment.end.y);
         ctx.stroke();
     })
+}
+
+// Return RGBa
+// example output: rgba(2,100,100,0)
+function getColor(value){
+    // Palette: https://usbrandcolors.com/google-colors/
+    // Green is positive
+
+    // `let`, these variables only have block scope
+    let r = 15;
+    let g = 157;
+    let b = 88;
+    if (value < 0){
+         r = 219;
+         g = 68;
+         b = 55;
+    }
+    // Red is negative
+    return `rgba(${r},${g},${b},${Math.abs(value)})`;
 }
 
 function drawIntersection(intersectionResult, ctx){
@@ -87,9 +99,9 @@ function drawIntersection(intersectionResult, ctx){
     drawDot(intersectionResult.intersection, ctx, "purple");
 }
 
-function drawDot(point, ctx,color){
+function drawDot(point, ctx, color, radius=5){
     ctx.beginPath();
-    ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+    ctx.arc(point.x, point.y, radius, 0, 2 * Math.PI);
     ctx.fillStyle = color;
     ctx.fill();
 }

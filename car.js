@@ -208,3 +208,12 @@ class AICar extends PlayerCar{
         super.update(obstacles);
     }
 }
+
+class SavedCar extends AICar{
+    constructor(x,y,width,height,speed,color, neuralNetwork){
+        super(x,y,width,height,speed,color);
+        // TODO: do I need to use super.neuralNetwork?
+        this.neuralNetwork = neuralNetwork;
+    }
+    // TODO: draw its commands as the car is running
+}

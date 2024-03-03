@@ -7,6 +7,7 @@ const networkCanvas=document.getElementById("networkCanvas");
 const networkCanvasWidth=500;
 networkCanvas.width=networkCanvasWidth;
 const networkCtx=networkCanvas.getContext("2d");
+const nnKey = "neuralNetworks";
 
 // Leave some margin for the road
 const road = new Road(/*x coordinate*/canvasWidth/2,/*width*/canvasWidth*0.9);
@@ -16,6 +17,16 @@ const traffic = [
     new Car(road.getLaneCenter(0), -100, 30, 50, 1, "green"),
 ]
 const cars = candidateCar(100);
+let forerunner = cars[0];
+let savedCars = [];
+if (nnKey in localStorage){
+    let savedCarsNeuralNetworks = JSON.parse(localStorage.getItem(nnKey));
+    savedCarsNeuralNetworks.forEach(neuralNetwork => {
+        savedCars.push(new SavedCar(road.getLaneCenter(0), 100, 30, 50, 1, "white", neuralNetwork));
+    });
+}
+
+animate();
 
 function candidateCar(N){
     let cars = [];
@@ -26,7 +37,21 @@ function candidateCar(N){
     return cars;
 }
 
-animate();
+// Current goal: when I click the "SAVE" button
+// 1) the top car's neural network is saved to the local storage
+// 2) we will draw that car every time (possibly with a different color [another class])
+function save() {
+    // Only save the neural network, not all properties of the car (e.g. position, speed, etc.)
+    // Store cars in an array
+    let savedCarsNeuralNetworks = [];
+    if (nnKey in localStorage){
+        savedCarsNeuralNetworks = JSON.parse(localStorage.getItem(nnKey));
+    }
+    savedCarsNeuralNetworks.push(forerunner.neuralNetwork);
+    // TODO: remove saved cars (if they fall off top 100)?
+    localStorage.setItem(nnKey, JSON.stringify(savedCarsNeuralNetworks));
+    console.log("car saved");
+}
 
 function animate(){
     traffic.forEach(car => {
@@ -38,12 +63,14 @@ function animate(){
         obstacles = obstacles.concat(connectPoints(car.polyGone));
     });
 
-    let forerunner = cars[0];
     cars.forEach(car => {
         car.update(obstacles);
         if(car.y < forerunner.y){
             forerunner = car;
         }
+    });
+    savedCars.forEach(car => {
+        car.update(obstacles);
     });
 
     // set canvas height resets the canvas?
@@ -73,6 +100,9 @@ function animate(){
         if(car != forerunner){
             car.draw(carCtx);
         }
+    });
+    savedCars.forEach(car => {
+        car.draw(carCtx);
     });
     carCtx.globalAlpha = 1;
     forerunner.draw(carCtx, true);
